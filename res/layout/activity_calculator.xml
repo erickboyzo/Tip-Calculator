@@ -1,0 +1,146 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:local="http://schemas.android.com/apk/res/TipCalc.UI.Droid"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/txtLbl1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bill Amount"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/txtAmount"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:numeric="decimal" />
+
+        <TextView
+            android:id="@+id/txtLbl3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tip Percentage" />
+    
+
+    
+
+        <RadioGroup
+            android:id="@+id/RadioGroupTips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkedButton="@+id/radioFifteen"
+            android:orientation="horizontal" >
+
+            <RadioButton
+                android:id="@+id/radioFifteen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="15%"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/radioEighteen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="18%"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/radioTwenty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20%"
+                android:textSize="15sp" />
+
+            <RadioButton
+                android:id="@+id/radioOther"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Other"
+                android:textSize="15sp" />
+        </RadioGroup>
+
+        <EditText
+            android:id="@+id/txtTipOther"
+            android:layout_width="86dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:numeric="integer" >
+
+            <requestFocus />
+        </EditText>
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="264dp"
+            android:layout_height="wrap_content"
+            android:text="Clear" />
+
+        <Button
+            android:id="@+id/btnCalculate"
+            android:layout_width="268dp"
+            android:layout_height="wrap_content"
+            android:text="Calculate" />
+    
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="2px"
+        android:layout_marginBottom="5dip"
+        android:layout_marginTop="5dip"
+        android:background="#DDFFDD" />
+
+        <TextView
+            android:id="@+id/txtLbl4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tip" />
+
+        <TextView
+            android:id="@+id/txtTipAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+   
+
+        <TextView
+            android:id="@+id/txtLbl5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total" />
+
+        <TextView
+            android:id="@+id/txtTotalToPay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             />
+    
+      
+
+        <TextView
+            android:id="@+id/txtLbl6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total" />
+
+        <TextView
+            android:id="@+id/txtTipPerPerson"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+             />
+  
+        <Button
+            android:id="@+id/save1"
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:text="Save" />
+
+        <Button
+            android:id="@+id/savedInfo2"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="Saved Info" />
+  
+
+        </LinearLayout>
