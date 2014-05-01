@@ -16,112 +16,149 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.os.Build;
 
-public class Calculator extends ActionBarActivity {
-	private EditText billAmount;
-	private EditText NumofPeople;
-	private EditText OtherAmountTip;
-	private RadioGroup rdoGroupTips;
-	private Button btnCalculate;
-	private Button btnReset;
-	private Button saveTip;
-	private Button viewTipSaved;
+public class MainActivity extends Activity {
 
-	private TextView txtTipAmount;
-	private TextView txtTotalToPay;
-	private TextView txtTipPerPerson;
+	final static NumberFormat formatter = NumberFormat.getCurrencyInstance();
 
-	// For the id of radio button selected
-	private int radioCheckedId = -1;
+	EditText txtAmount;
+	EditText txtTipOther;
+	RadioGroup rdoGroupTips;
+	Button btnCalculate;
+	Button btnReset;
+	Button saveTip;
+	Button viewTipSaves;
+	TextView txtTipAmount;
+	TextView txtTotalToPay;
 
-	// private NumberPickerLogic mLogic;
+	DBHelper helper;
+	SQLiteDatabase db;
 
-	/** Called when the activity is first created. */
+	int radioCheckedId = -1;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_calculator);
+		setContentView(R.layout.activity_main);
 
-		// Access the various widgets by their id in R.java
-		billAmount = (EditText) findViewById(R.id.txtAmount);
-		// On app load, the cursor should be in the Amount field
-		billAmount.requestFocus();
+		txtAmount = (EditText) findViewById(R.id.txtAmount);
 
-		OtherAmountTip = (EditText) findViewById(R.id.txtTipOther);
+		txtAmount.requestFocus();
+
+		txtTipOther = (EditText) findViewById(R.id.txtTipOther);
 
 		rdoGroupTips = (RadioGroup) findViewById(R.id.RadioGroupTips);
 
 		btnCalculate = (Button) findViewById(R.id.btnCalculate);
-		// On app load, the Calculate button is disabled
+		saveTip = (Button) findViewById(R.id.btnSaveTip);
+		viewTipSaves = (Button) findViewById(R.id.btnViewTips);
+
 		btnCalculate.setEnabled(false);
 
 		btnReset = (Button) findViewById(R.id.btnReset);
 
 		txtTipAmount = (TextView) findViewById(R.id.txtTipAmount);
 		txtTotalToPay = (TextView) findViewById(R.id.txtTotalToPay);
-		txtTipPerPerson = (TextView) findViewById(R.id.txtTipPerPerson);
 
-		// On app load, disable the 'Other tip' percentage text field
-		OtherAmountTip.setEnabled(false);
+		txtTipOther.setEnabled(false);
+		helper = new DBHelper(this);
 
-		/*
-		 * Attach a OnCheckedChangeListener to the radio group to monitor radio
-		 * buttons selected by user
-		 */
 		rdoGroupTips.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
+                         
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				// Enable/disable Other Percentage tip field
+
 				if (checkedId == R.id.radioFifteen
 						|| checkedId == R.id.radioEighteen
 						|| checkedId == R.id.radioTwenty) {
-					OtherAmountTip.setEnabled(false);
-					btnCalculate.setEnabled(billAmount.getText().length() > 0);
-				}
-				/*
-				 * Enable the calculate button if Total Amount and No. of People
-				 * fields have valid values. Also ensure that user has entered a
-				 * Other Tip Percentage value before enabling the Calculate
-				 * button.
-				 */
-				if (checkedId == R.id.radioOther) {
-					OtherAmountTip.setEnabled(true);
-					OtherAmountTip.requestFocus();
-					btnCalculate.setEnabled(billAmount.getText().length() > 0
-							&& OtherAmountTip.getText().length() > 0);
-				}
+					txtTipOther.setEnabled(false);
 
+					btnCalculate.setEnabled(txtAmount.getText().length() > 0);
+				}
+				if (checkedId == R.id.radioOther) {
+
+					txtTipOther.setEnabled(true);
+
+					txtTipOther.requestFocus();
+
+					btnCalculate.setEnabled(txtAmount.getText().length() > 0
+							&& txtTipOther.getText().length() > 0);
+				}
+				
 				radioCheckedId = checkedId;
 			}
 		});
 
-		/*
-		 * Attach a KeyListener to the all buttons in app
-		 */
-		billAmount.setOnKeyListener(mKeyListener);
-		OtherAmountTip.setOnKeyListener(mKeyListener);
-		saveTip.setOnKeyListener(mKeyListener);
-		viewTipSaved.setOnKeyListener(mKeyListener);
+		txtAmount.setOnKeyListener(mKeyListener);
+		txtTipOther.setOnKeyListener(mKeyListener);
 
 		btnCalculate.setOnClickListener(mClickListener);
 		btnReset.setOnClickListener(mClickListener);
+		saveTip.setOnClickListener(mClickListener);
+		viewTipSaves.setOnClickListener(mClickListener);
 
 	}
 
+	public OnKeyListener mKeyListener = new OnKeyListener() {
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+			switch (v.getId()) {
+			case R.id.txtAmount:
+
+				btnCalculate.setEnabled(txtAmount.getText().length() > 0);
+				break;
+			case R.id.txtTipOther:
+				btnCalculate.setEnabled(txtAmount.getText().length() > 0
+
+				&& txtTipOther.getText().length() > 0);
+				break;
+			}
+			return false;
+		}
+
+	};
+
+	public OnClickListener mClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			if (v.getId() == R.id.btnCalculate) {
+				calculate();
+			} else {
+				reset();
+			}
+		}
+	};
+/*
+ * Resets screen 
+ */
+	public void reset() {
+		txtAmount.requestFocus();
+		txtTipAmount.setText("");
+		txtTotalToPay.setText("");
+		txtAmount.setText("");
+
+		txtTipOther.setText("");
+		rdoGroupTips.clearCheck();
+		rdoGroupTips.check(R.id.radioFifteen);
+
+	}
+
+	public String giveDate() {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d, yyyy");
+		return sdf.format(cal.getTime());
+	}
+
 	public void calculate() {
-		Double txtbillAmount = Double.parseDouble(billAmount.getText()
-				.toString());
+		Double billAmount = Double.parseDouble(txtAmount.getText().toString());
 		Double percentage = null;
 		boolean isError = false;
-		if (txtbillAmount < 1.0) {
-			showErrorAlert("Enter a valid Total Amount.", billAmount.getId());
+		if (billAmount < 1.0) {
+			showErrorAlert("Enter a valid Total Amount.", txtAmount.getId());
 			isError = true;
 		}
 
-		/*
-		 * If user never changes radio selection, then it means the default
-		 * selection of 15% is in effect. But it's safer to verify...
-		 */
 		if (radioCheckedId == -1) {
 			radioCheckedId = rdoGroupTips.getCheckedRadioButtonId();
 		}
@@ -132,13 +169,20 @@ public class Calculator extends ActionBarActivity {
 		} else if (radioCheckedId == R.id.radioTwenty) {
 			percentage = 20.00;
 		} else if (radioCheckedId == R.id.radioOther) {
-			percentage = Double
-					.parseDouble(OtherAmountTip.getText().toString());
+			percentage = Double.parseDouble(txtTipOther.getText().toString());
 			if (percentage < 1.0) {
 				showErrorAlert("Enter a valid Tip percentage",
-						OtherAmountTip.getId());
+						txtTipOther.getId());
 				isError = true;
 			}
+		}
+
+		if (!isError) {
+			double tipAmount = ((billAmount * percentage) / 100);
+			double totalToPay = billAmount + tipAmount;
+
+			txtTipAmount.setText(formatter.format(tipAmount));
+			txtTotalToPay.setText(formatter.format(totalToPay));
 
 		}
 	}
@@ -156,74 +200,4 @@ public class Calculator extends ActionBarActivity {
 							}
 						}).show();
 	}
-
-	/*
-	 * KeyListener for the Total Amount, No of People and Other Tip Percentage
-	 * fields. We need to apply this key listener to check for following
-	 * conditions:
-	 * 
-	 * 1) If user selects Other tip percentage, then the other tip text field
-	 * should have a valid tip percentage entered by the user. Enable the
-	 * Calculate button only when user enters a valid value.
-	 * 
-	 * 2) If user does not enter values in the Total Amount and No of People, we
-	 * cannot perform the calculations. Hence enable the Calculate button only
-	 * when user enters a valid values.
-	 */
-	public OnKeyListener mKeyListener = new OnKeyListener() {
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event) {
-
-			switch (v.getId()) {
-			case R.id.txtAmount:
-				btnCalculate.setEnabled(billAmount.getText().length() > 0);
-				break;
-			case R.id.txtTipOther:
-				btnCalculate.setEnabled(billAmount.getText().length() > 0
-
-				&& OtherAmountTip.getText().length() > 0);
-				break;
-			}
-			return false;
-		}
-
-	};
-
-	/**
-	 * ClickListener for the Calculate and Reset buttons. Depending on the
-	 * button clicked, the corresponding method is called.
-	 */
-	public OnClickListener mClickListener = new OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			if (v.getId() == R.id.btnCalculate) {
-				calculate();
-			} 
-			else {
-				reset();
-			}
-		}
-	};
-
-	/**
-	 * Resets the results text views at the bottom of the screen as well as
-	 * resets the text fields and radio buttons.
-	 */
-	public void reset() {
-		txtTipAmount.setText("");
-		txtTotalToPay.setText("");
-		txtTipPerPerson.setText("");
-		billAmount.setText("");
-
-		OtherAmountTip.setText("");
-		rdoGroupTips.clearCheck();
-		rdoGroupTips.check(R.id.radioFifteen);
-		// set focus on the first field
-		billAmount.requestFocus();
-	}
-
-	/**
-	 * Calculate the tip as per data entered by the user.
-	 */
-
+}
